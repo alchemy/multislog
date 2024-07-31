@@ -8,17 +8,19 @@ import (
 
 type handler []slog.Handler
 
+// NewHandler creates a new [slog.Handler] which combines all the
+// handlers passed as arguments in a single one.
 func NewHandler(handlers ...slog.Handler) slog.Handler {
 	return handler(handlers)
 }
 
-// Enabled implements the method of the slog.Handler interface
-// by calling the same method of the formatter habdler.
+// Enabled implements the method of the slog.Handler interface.
 func (h handler) Enabled(_ context.Context, _ slog.Level) bool {
 	return true
 }
 
 // Handle implements the method of the slog.Handler interface.
+// It simply calls each underlying handler Handle method.
 func (h handler) Handle(ctx context.Context, r slog.Record) error {
 	var errs []error
 	for i := range h {
@@ -30,9 +32,9 @@ func (h handler) Handle(ctx context.Context, r slog.Record) error {
 	return errors.Join(errs...)
 }
 
-// WithAttrs implements the method of the slog.Handler interface by
-// cloning the current handler and calling the WithAttrs of the
-// formatter handler.
+// WithAttrs implements the method of the slog.Handler interface
+// by cloning the current handler and calling WithAttrs for each
+// underlying handler.
 func (h handler) WithAttrs(attr []slog.Attr) slog.Handler {
 	var nh handler = make(handler, len(h))
 	for i := range h {
@@ -41,9 +43,9 @@ func (h handler) WithAttrs(attr []slog.Attr) slog.Handler {
 	return nh
 }
 
-// WithGroup implements the method of the slog.Handler interface by
-// cloning the current handler and calling the WithGroup of the
-// formatter handler.
+// WithGroup implements the method of the slog.Handler interface
+// by cloning the current handler and calling WithGroup for each
+// underlying handler.
 func (h handler) WithGroup(name string) slog.Handler {
 	var nh handler = make(handler, len(h))
 	for i := range h {
