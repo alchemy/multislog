@@ -23,10 +23,12 @@ jobs:
         id: hash
         shell: bash
         run: |
-          # Genera un hash deterministico dell'archivio del codice sorgente (tar)
-          # Questo rappresenta l'identità digitale della tua libreria Go
           set -euo pipefail
-          echo "hashes=$(git archive --format=tar HEAD | sha256sum | base64 -w0)" >> "$GITHUB_OUTPUT"
+          # 1. Crea l'archivio e calcola l'hash
+          # 2. Formatta come: "hash  source.tar.gz"
+          # 3. Codifica l'intera riga in base64
+          HASH=$(git archive --format=tar HEAD | sha256sum | cut -d' ' -f1)
+          echo "hashes=$(echo "$HASH  source.tar.gz" | base64 -w0)" >> "$GITHUB_OUTPUT"
 
   # Fase 2: Generazione dell'attestazione SLSA firmata
   provenance:
