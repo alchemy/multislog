@@ -1,6 +1,9 @@
 name: SLSA Generic Generator
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - 'v*' # Si attiva su ogni tag che inizia con 'v' (es. v1.0.0)
   release:
     types: [published]
 
