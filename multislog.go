@@ -15,8 +15,13 @@ func NewHandler(handlers ...slog.Handler) slog.Handler {
 }
 
 // Enabled implements the method of the slog.Handler interface.
-func (h handler) Enabled(_ context.Context, _ slog.Level) bool {
-	return true
+func (h handler) Enabled(ctx context.Context, level slog.Level) bool {
+	for i := range h {
+		if h[i].Enabled(ctx, level) {
+			return true
+		}
+	}
+	return false
 }
 
 // Handle implements the method of the slog.Handler interface.
@@ -27,7 +32,9 @@ func (h handler) Handle(ctx context.Context, r slog.Record) error {
 		if !h[i].Enabled(ctx, r.Level) {
 			continue
 		}
-		errs = append(errs, h[i].Handle(ctx, r))
+		if err := h[i].Handle(ctx, r); err != nil {
+			errs = append(errs, err)
+		}
 	}
 	return errors.Join(errs...)
 }

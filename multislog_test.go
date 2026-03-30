@@ -4,8 +4,6 @@ import (
 	"log/slog"
 	"strings"
 	"testing"
-
-	"log"
 )
 
 func TestHandler1(t *testing.T) {
@@ -21,9 +19,9 @@ func TestHandler1(t *testing.T) {
 	logger.Warn("warn message")
 	logger.Error("error message")
 	if sb1.String() != sb2.String() {
-		log.Fatalln(sb1, "differs from", sb2)
+		t.Fatalf("handlers produced different output:\n  h1: %s\n  h2: %s", sb1, sb2)
 	}
-	if len(strings.Split(sb1.String(), "\n")) != 4 {
-		log.Fatalln(sb1, "must contain exactly 4 newline characters")
+	if n := strings.Count(sb1.String(), "\n"); n != 3 {
+		t.Fatalf("expected 3 log lines, got %d: %s", n, sb1)
 	}
 }
